@@ -19,7 +19,7 @@ Add `bounce_back` to your list of dependencies in `mix.exs`:
 ```elixir
 defp deps do
   [
-    {:bounce_back, "~> 0.1"}
+    {:bounce_back, "~> 0.2.0"}
   ]
 end
 ```
