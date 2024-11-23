@@ -4,7 +4,7 @@ defmodule BounceBack do
   @default_opts [
     max_retries: 5,
     strategy: :exponential_backoff,
-    # milliseconds
+    retry_on: [],
     base_delay: 100,
     jitter: true
   ]
@@ -21,21 +21,36 @@ defmodule BounceBack do
       {:ok, result} ->
         {:ok, result}
 
-      {:error, reason} when remaining_retries > 0 ->
-        emit_retry_event(remaining_retries, reason)
+      {:error, error} when remaining_retries > 0 ->
+        emit_retry_event(remaining_retries, error)
         Strategies.wait(opts[:strategy], opts, opts[:max_retries] - remaining_retries)
-        execute_retry(fun, opts, remaining_retries - 1)
 
-      {:error, reason} ->
-        {:error, reason}
+        if should_retry?(error, opts[:retry_on]) do
+          execute_retry(fun, opts, remaining_retries - 1)
+        end
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 
-  defp emit_retry_event(remaining, reason) do
+  defp should_retry?(_, []), do: true
+
+  defp should_retry?(%struct_name{} = error, [_ | _] = retry_on)
+       when is_list(retry_on) and is_struct(error),
+       do: struct_name in retry_on
+
+  defp should_retry?(error, retry_on)
+       when is_list(retry_on) and is_binary(error),
+       do: error in retry_on
+
+  defp should_retry?(error, retry_on) when is_function(retry_on), do: retry_on.(error)
+
+  defp emit_retry_event(remaining, error) do
     :telemetry.execute(
       [:bounce_back, :retry],
       %{remaining_retries: remaining},
-      %{reason: reason}
+      %{error: error}
     )
   end
 end
