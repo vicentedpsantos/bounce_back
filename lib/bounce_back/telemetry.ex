@@ -12,7 +12,7 @@ defmodule BounceBack.Telemetry do
     )
   end
 
-  def handle_retry_event(_event, measurements, metadata, _config) do
+  defp handle_retry_event(_event, measurements, metadata, _config) do
     IO.puts("Retry event: #{inspect(measurements)}, Reason: #{inspect(metadata[:reason])}")
   end
 end
