@@ -1,4 +1,6 @@
-# BounceBack
+# BounceBack ♻️
+
+[![BounceBack](https://img.shields.io/hexpm/v/kase.svg)](https://hex.pm/packages/bounce_back/0.1.0)
 
 BounceBack is an Elixir library that provides flexible retry mechanisms with customizable strategies for handling retries in the event of failures. It allows you to easily implement retry logic in your applications using a variety of strategies, such as exponential backoff and linear delay, with options for jitter to avoid congestion during retries.
 
